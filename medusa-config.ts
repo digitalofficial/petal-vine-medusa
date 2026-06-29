@@ -8,9 +8,17 @@ module.exports = defineConfig({
   },
   modules: [
     {
-      resolve: "@medusajs/payment-stripe",
+      resolve: "@medusajs/medusa/payment",
       options: {
-        apiKey: process.env.STRIPE_API_KEY!,
+        providers: [
+          {
+            resolve: "@medusajs/medusa/payment-stripe",
+            id: "stripe",
+            options: {
+              apiKey: process.env.STRIPE_SECRET_KEY,
+            },
+          },
+        ],
       },
     },
   ],
