@@ -6,6 +6,14 @@ module.exports = defineConfig({
   admin: {
     disable: true,
   },
+  modules: [
+    {
+      resolve: "@medusajs/payment-stripe",
+      options: {
+        apiKey: process.env.STRIPE_API_KEY!,
+      },
+    },
+  ],
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     http: {
