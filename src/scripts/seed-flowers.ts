@@ -78,8 +78,8 @@ export default async function seedFlowers({ container }: ExecArgs) {
           status: ProductStatus.PUBLISHED,
           shipping_profile_id: shippingProfile.id,
           category_ids: [bouquets.id],
-          thumbnail: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=600&q=80",
-          images: [{ url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=800&q=80" }],
+          thumbnail: "https://images.unsplash.com/photo-1471696035578-3d8c78d99684?w=600&q=80",
+          images: [{ url: "https://images.unsplash.com/photo-1471696035578-3d8c78d99684?w=800&q=80" }],
           options: [{ title: "Size", values: ["Petite", "Full"] }],
           variants: [
             { title: "Petite", sku: "WILD-SM", prices: [{ amount: 3200, currency_code: "eur" }, { amount: 3499, currency_code: "usd" }], options: { Size: "Petite" }, manage_inventory: false },
@@ -108,8 +108,8 @@ export default async function seedFlowers({ container }: ExecArgs) {
           status: ProductStatus.PUBLISHED,
           shipping_profile_id: shippingProfile.id,
           category_ids: [wedding.id],
-          thumbnail: "https://images.unsplash.com/photo-1522057306606-8d84838d9814?w=600&q=80",
-          images: [{ url: "https://images.unsplash.com/photo-1522057306606-8d84838d9814?w=800&q=80" }],
+          thumbnail: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600&q=80",
+          images: [{ url: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&q=80" }],
           options: [{ title: "Style", values: ["Classic", "Premium"] }],
           variants: [
             { title: "Classic", sku: "BRIDAL-CL", prices: [{ amount: 12000, currency_code: "eur" }, { amount: 12999, currency_code: "usd" }], options: { Style: "Classic" }, manage_inventory: false },
