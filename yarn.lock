@@ -13947,6 +13947,7 @@ __metadata:
     "@medusajs/cli": "npm:2.16.0"
     "@medusajs/framework": "npm:2.16.0"
     "@medusajs/medusa": "npm:2.16.0"
+    "@medusajs/payment-stripe": "npm:2.16.0"
     "@medusajs/test-utils": "npm:2.16.0"
     "@swc/core": "npm:^1.7.28"
     "@swc/jest": "npm:^0.2.36"
