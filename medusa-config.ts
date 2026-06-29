@@ -2,16 +2,20 @@ import { loadEnv, defineConfig } from '@medusajs/framework/utils'
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
+// Accept either env var name so a naming mismatch can't silently disable
+// Stripe (STRIPE_SECRET_KEY is Medusa's convention; STRIPE_API_KEY is also used).
+const stripeApiKey = process.env.STRIPE_SECRET_KEY || process.env.STRIPE_API_KEY
+
 // Only register the Stripe payment provider when an API key is present.
-// Without this guard a missing STRIPE_SECRET_KEY crashes the server on boot
-// (causing the whole API to 502), instead of just disabling card payments.
-const paymentProviders = process.env.STRIPE_SECRET_KEY
+// Without this guard a missing key crashes the server on boot (causing the
+// whole API to 502), instead of just disabling card payments.
+const paymentProviders = stripeApiKey
   ? [
       {
         resolve: "@medusajs/medusa/payment-stripe",
         id: "stripe",
         options: {
-          apiKey: process.env.STRIPE_SECRET_KEY,
+          apiKey: stripeApiKey,
         },
       },
     ]
