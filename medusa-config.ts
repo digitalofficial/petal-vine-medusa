@@ -23,7 +23,12 @@ const paymentProviders = stripeApiKey
 
 module.exports = defineConfig({
   admin: {
-    disable: true,
+    // Built-in Medusa admin dashboard, served at <backend-url>/app.
+    // Requires the Railway start command to run from .medusa/server so the
+    // built admin (public/admin/index.html) is found. Set MEDUSA_BACKEND_URL
+    // in production so the dashboard targets the right API.
+    disable: false,
+    backendUrl: process.env.MEDUSA_BACKEND_URL,
   },
   modules: [
     {
