@@ -1,78 +1,84 @@
-> ⚠️ This repository is now deprecated. Use the [dtc-starter](https://github.com/medusajs/dtc-starter) instead.
+# Petal & Vine — Commerce Backend
 
-<p align="center">
-  <a href="https://www.medusajs.com">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/59018053/229103275-b5e482bb-4601-46e6-8142-244f531cebdb.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg">
-    <img alt="Medusa logo" src="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg">
-    </picture>
-  </a>
-</p>
-<h1 align="center">
-  Medusa
-</h1>
+[Medusa v2](https://medusajs.com) backend powering the Petal & Vine florist shop:
+product catalogue, cart, Stripe checkout, inventory, and a built-in admin
+dashboard with a custom analytics page.
 
-<h4 align="center">
-  <a href="https://docs.medusajs.com">Documentation</a> |
-  <a href="https://www.medusajs.com">Website</a>
-</h4>
+## Architecture
 
-<p align="center">
-  Building blocks for digital commerce
-</p>
-<p align="center">
-  <a href="https://github.com/medusajs/medusa/blob/master/CONTRIBUTING.md">
-    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat" alt="PRs welcome!" />
-  </a>
-    <a href="https://www.producthunt.com/posts/medusa"><img src="https://img.shields.io/badge/Product%20Hunt-%231%20Product%20of%20the%20Day-%23DA552E" alt="Product Hunt"></a>
-  <a href="https://discord.gg/xpCwq3Kfn8">
-    <img src="https://img.shields.io/badge/chat-on%20discord-7289DA.svg" alt="Discord Chat" />
-  </a>
-  <a href="https://twitter.com/intent/follow?screen_name=medusajs">
-    <img src="https://img.shields.io/twitter/follow/medusajs.svg?label=Follow%20@medusajs" alt="Follow @medusajs" />
-  </a>
-</p>
+| Piece | Repo | Hosting |
+|-------|------|---------|
+| **Storefront** (Next.js 14) | `petal-and-vine-v3` (sibling repo) | Vercel |
+| **Backend** (Medusa 2.16) | this repo | Railway |
+| **Database** | PostgreSQL | Railway |
+| **Payments** | Stripe | — |
 
-## Compatibility
+The storefront fetches the store API client-side (see `Shop.tsx` in the
+storefront repo) using a Medusa **publishable key**, and completes checkout via
+the Stripe payment provider (`pp_stripe_stripe`).
 
-This starter is compatible with versions >= 2 of `@medusajs/medusa`. 
+- **API base:** `https://petal-vine-medusa-production.up.railway.app`
+- **Admin dashboard:** `/app`
 
-## Getting Started
+## Local development
 
-Visit the [Quickstart Guide](https://docs.medusajs.com/learn/installation) to set up a server.
+```bash
+yarn install
+cp .env.template .env          # then fill in DATABASE_URL, STRIPE_API_KEY, etc.
+yarn medusa db:migrate         # run migrations
+yarn dev                       # starts Medusa in watch mode
+```
 
-Visit the [Docs](https://docs.medusajs.com/learn/installation#get-started) to learn more about our system requirements.
+The admin dashboard is served at `http://localhost:9000/app`. Create an admin
+user with:
 
-## What is Medusa
+```bash
+npx medusa user -e you@example.com -p your-password
+```
 
-Medusa is a set of commerce modules and tools that allow you to build rich, reliable, and performant commerce applications without reinventing core commerce logic. The modules can be customized and used to build advanced ecommerce stores, marketplaces, or any product that needs foundational commerce primitives. All modules are open-source and freely available on npm.
+## Environment variables
 
-Learn more about [Medusa’s architecture](https://docs.medusajs.com/learn/introduction/architecture) and [commerce modules](https://docs.medusajs.com/learn/fundamentals/modules/commerce-modules) in the Docs.
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | Postgres connection string |
+| `STORE_CORS` / `ADMIN_CORS` / `AUTH_CORS` | allowed origins (include the Vercel storefront domain in `STORE_CORS`) |
+| `JWT_SECRET` / `COOKIE_SECRET` | auth secrets |
+| `STRIPE_API_KEY` | Stripe **secret** key (`sk_…`). The config also accepts `STRIPE_SECRET_KEY`. |
+| `MEDUSA_BACKEND_URL` | public backend URL, so the admin dashboard targets the right API |
 
-## Build with AI Agents
+> The Stripe payment provider is only registered when a key is present, so a
+> missing key disables card payments instead of crashing the server on boot.
 
-### Claude Code Plugin
+## Deployment (Railway)
 
-If you use AI agents like Claude Code, check out the [medusa-dev Claude Code plugin](https://github.com/medusajs/medusa-claude-plugins).
+- **Build:** none set — Nixpacks auto-runs `npm run build` (= `medusa build`),
+  which builds both the server and the admin dashboard.
+- **Start command:** `cd .medusa/server && npx medusa start`
+  - ⚠️ Must run from `.medusa/server`, not the project root — otherwise the
+    admin build (`public/admin/index.html`) isn't found and the server crashes.
 
-### Other Agents
+A push to `master` triggers a redeploy. Run one-off scripts against production
+from **Railway → Console**.
 
-If you use AI agents other than Claude Code, copy the [skills directory](https://github.com/medusajs/medusa-claude-plugins/tree/main/plugins/medusa-dev/skills) into your agent's relevant `skills` directory.
+## Scripts
 
-### MCP Server
+Run with `npx medusa exec ./src/scripts/<file>.ts`:
 
-You can also add the MCP server `https://docs.medusajs.com/mcp` to your AI agents to answer questions related to Medusa. The `medusa-dev` Claude Code plugin includes this MCP server by default.
+| Script | What it does |
+|--------|--------------|
+| `seed.ts` | Base Medusa seed (region, sales channel, stock location, demo products) |
+| `seed-flowers.ts` | Seeds the 6 Petal & Vine flower products (run after `seed.ts`) |
+| `enable-flower-inventory.ts` | Turns on stock tracking for flower variants and sets starting quantities (idempotent) |
+| `rm-demo-all.ts` | Removes Medusa demo products **and** their orphaned inventory items |
+| `rename-store.ts` | Renames the store to "Petal & Vine" |
 
-## Community & Contributions
+## Admin customizations
 
-The community and core team are available in [GitHub Discussions](https://github.com/medusajs/medusa/discussions), where you can ask for support, discuss roadmap, and share ideas.
+- **Analytics page** — `src/admin/routes/analytics/page.tsx` adds an *Analytics*
+  item to the sidebar, backed by the `src/api/admin/analytics/route.ts`
+  endpoint. Shows revenue, order count, AOV, items sold, a 14-day revenue
+  chart, top products, and a low-stock list.
 
-Join our [Discord server](https://discord.com/invite/medusajs) to meet other community members.
+## Tech
 
-## Other channels
-
-- [GitHub Issues](https://github.com/medusajs/medusa/issues)
-- [Twitter](https://twitter.com/medusajs)
-- [LinkedIn](https://www.linkedin.com/company/medusajs)
-- [Medusa Blog](https://medusajs.com/blog/)
+Medusa 2.16 · Node ≥ 20 · PostgreSQL · Stripe · React Admin SDK
